@@ -45,18 +45,68 @@ running = True
 finish = False
 FPS = 60
 clock = time.Clock()
+speed_x,speed_y = 3,3
+
+font.init()
+text = font.Font(None, 35)
+player_a_win = text.render('PLAYER A WINS!', True, (255, 255, 255))
+player_b_win = text.render('PLAYER B WINS!', True, (255, 255, 255))
+statistics = font.Font(None, 30)
+player_a_name = statistics.render('Player A', True, (255, 255, 0))
+player_a_score = statistics.render('SCORE: 0', True, (200, 0, 255))
+player_b_name = statistics.render('Player B', True, (255, 255, 0))
+player_b_score = statistics.render('SCORE: 0', True, (200, 0, 255))
+
+store_a = 0
+store_b = 0
 
 while running:
     for e in event.get():
         if e.type == QUIT:
             running = False
-
+    
     if finish == False:
-        window.blit(background, (0, 0))
+        window.blit(background, (0,0))
         player_a.reset()
         player_b.reset()
+        player_a.update()
+        player_b.update()
+        
+        window.blit(player_a_name, (10, 10))
+        window.blit(player_b_name, (screenwidth - 100, 10))
+        window.blit(player_a_score, (10, 40))
+        window.blit(player_b_score,  (screenwidth - 100, 40))
         ball.reset()
+        ball.rect.x += speed_x
+        ball.rect.y += speed_y
+        if sprite.collide_rect(ball, player_a) or sprite.collide_rect(ball, player_b):
+            speed_x *= -1
+            speed_y *= 1
+
+        if ball.rect.y > screenheight - 50 or ball.rect.y < 50:
+            speed_y *= -1
+        if ball.rect.x < 0:
+            ball.rect.x = 450
+            ball.rect.y = 300
+            store_b += 1
+            player_b_score = statistics.render('SCORE: ' + str(store_b), True, (200, 0, 255))
+            
+        if ball.rect.x > screenwidth:
+            ball.rect.x = 450
+            ball.rect.y = 300
+            store_a += 1
+            player_a_score = statistics.render('SCORE: ' + str(store_a), True, (200, 0, 255))
+        if store_a >=  20:
+            window.blit(player_a_win, (screenwidth/2 - 100, screenheight/2 - 100))
+            finish = True
+        if store_b >= 20:
+            window.blit(player_b_win, (screenwidth/2 - 100, screenheight/2 - 100))
+            finish = True
+
+
 
     display.update()
     clock.tick(FPS)
+display.update()
+clock.tick(FPS)
 
